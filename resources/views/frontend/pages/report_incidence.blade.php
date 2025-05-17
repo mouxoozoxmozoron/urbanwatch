@@ -31,10 +31,10 @@
                                 <input type="text" name="ward" class="form-control py-3 px-4" placeholder="Ward" required>
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="latitude" id="latitude" class="form-control py-3 px-4" placeholder="Latitude" readonly required>
+                                <input type="text" name="latitude" id="latitude" class="form-control py-3 px-4" placeholder="Latitude" required hidden>
                             </div>
                             <div class="col-md-6">
-                                <input type="text" name="longitude" id="longitude" class="form-control py-3 px-4" placeholder="Longitude" readonly required>
+                                <input type="text" name="longitude" id="longitude" class="form-control py-3 px-4" placeholder="Longitude" required hidden>
                             </div>
                             <div class="col-12">
                                 <textarea name="description" rows="4" class="form-control py-3 px-4" placeholder="Description of the issue..." required></textarea>
@@ -43,7 +43,8 @@
                             <!-- Image Upload -->
                             <div class="col-12">
                                 <label class="form-label fw-bold">Attach Images (Multiple allowed):</label>
-                                <input type="file" id="imageInput" class="form-control" multiple accept="image/*">
+                                <input type="file" id="imageInput" class="form-control" name="attachments[]" multiple accept="image/*">
+
                                 <div id="imagePreview" class="row mt-3"></div>
                             </div>
 
@@ -63,61 +64,105 @@
 @push('scripts')
 
 <script>
-$(document).ready(function () {
-    // ✅ Get coordinates on page load
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (position) {
-            $('#latitude').val(position.coords.latitude.toFixed(6));
-            $('#longitude').val(position.coords.longitude.toFixed(6));
-            console.log('coordinate captured');
-        }, function (error) {
-            alert('Failed to get your location. Please allow location access.');
+    $(document).ready(function () {
+        let imageFiles = [];
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                $('#latitude').val(position.coords.latitude.toFixed(6)).prop('disabled', true);
+                $('#longitude').val(position.coords.longitude.toFixed(6)).prop('disabled', true);
+                console.log('Coordinates captured');
+            }, function (error) {
+                alert('Failed to get your location. Please allow location access.');
+            });
+        } else {
+            alert('Geolocation is not supported in your browser.');
+        }
+
+        // ✅ Image preview logic
+        $('#imageInput').on('change', function (e) {
+            imageFiles = Array.from(e.target.files);
+            renderImagePreviews();
         });
-    } else {
-        alert('Geolocation is not supported in your browser.');
-    }
 
-    // ✅ Image preview logic
-    let imageFiles = [];
+        function renderImagePreviews() {
+            $('#imagePreview').empty();
 
-    $('#imageInput').on('change', function (e) {
-        imageFiles = Array.from(e.target.files);
-        renderImagePreviews();
-    });
+            imageFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const preview = $(`
+                        <div class="col-md-3 position-relative mb-3">
+                            <img src="${e.target.result}" class="img-fluid border rounded">
+                            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" data-index="${index}">&times;</button>
+                        </div>
+                    `);
 
-    function renderImagePreviews() {
-        $('#imagePreview').empty();
+                    preview.find('button').click(function () {
+                        const i = $(this).data('index');
+                        imageFiles.splice(i, 1);
+                        renderImagePreviews();
+                    });
 
-        imageFiles.forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const preview = $(`
-                    <div class="col-md-3 position-relative mb-3">
-                        <img src="${e.target.result}" class="img-fluid border rounded">
-                        <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" data-index="${index}">&times;</button>
-                    </div>
-                `);
+                    $('#imagePreview').append(preview);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
 
-                preview.find('button').click(function () {
-                    const i = $(this).data('index');
-                    imageFiles.splice(i, 1);
-                    renderImagePreviews();
-                });
+        // Form submission with AJAX
+        $('#incidentForm').on('submit', function (e) {
+            e.preventDefault();
+            const form = this;
+            const submitButton = $(form).find('button[type="submit"]');
 
-                $('#imagePreview').append(preview);
-            };
-            reader.readAsDataURL(file);
+            if (!form.checkValidity()) {
+                $(form).addClass('was-validated');
+                return;
+            }
+
+            submitButton.prop('disabled', true);
+            startLoading();
+
+            const formData = new FormData(form);
+
+            // Append latitude and longitude manually (in case they are disabled)
+            formData.set('latitude', $('#latitude').val());
+            formData.set('longitude', $('#longitude').val());
+
+            // Append all selected images
+            imageFiles.forEach((file, index) => {
+                formData.append('images[]', file);
+            });
+
+            $.ajax({
+                url: "{{ route('report_incidence') }}",
+                method: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    stopLoading();
+                    submitButton.prop('disabled', false);
+
+                    if (data.status === 'success') {
+                        showFlashMessage('success', data.message || 'Report submitted successfully!');
+                        form.reset();
+                        $('#imagePreview').empty();
+                    } else {
+                        showFlashMessage('error', data.message || 'Failed to submit report.');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    stopLoading();
+                    submitButton.prop('disabled', false);
+                    showFlashMessage('error', 'An error occurred. Please try again!');
+                    console.error(error);
+                }
+            });
         });
-    }
-
-    // ✅ Dummy form handler
-    $('#incidentForm').on('submit', function (e) {
-        e.preventDefault();
-        alert('Form submitted! (You can now hook to backend)');
-        this.reset();
-        imageFiles = [];
-        renderImagePreviews();
     });
-});
 </script>
 @endpush

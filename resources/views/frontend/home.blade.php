@@ -251,7 +251,7 @@
                                     Use the platform to track construction, report issues, and promote transparency in urban infrastructure development.
                                 </p>
                                 <div class="donation-btn d-flex align-items-center justify-content-start">
-                                    <a class="btn-hover-bg btn btn-primary text-white py-2 px-4" href="#">Report Now</a>
+                                    <a class="btn-hover-bg btn btn-primary text-white py-2 px-4" href={{ route('report-incidence') }}">Report Now</a>
                                 </div>
                             </div>
                         </div>

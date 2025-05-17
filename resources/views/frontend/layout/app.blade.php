@@ -31,11 +31,65 @@
 
     <body>
 
+    <style>
+            /* Loading Indicator */
+        #loadingIndicator {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 4px;
+        width: 0%;
+        background-color: rgb(230, 31, 31);
+        z-index: 9999;
+        transition: width 0.3s ease-in-out;
+    }
+
+    /* Flash Message */
+    .flash-message {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        min-width: 300px;
+        padding: 15px 20px;
+        border-radius: 5px;
+        box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+        color: #fff;
+        font-size: 16px;
+        z-index: 9999;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s, transform 0.5s;
+    }
+
+    .flash-message.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .flash-message.success {
+        background-color: green;
+    }
+
+    .flash-message.warning {
+        background-color: orange;
+    }
+
+    .flash-message.error {
+        background-color: red;
+    }
+
+    </style>
+
+
+
         <!-- Spinner Start -->
         <div id="spinner" class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50  d-flex align-items-center justify-content-center">
             <div class="spinner-grow text-primary" role="status"></div>
         </div>
         <!-- Spinner End -->
+
+        <div id="loadingIndicator"></div>
+
 
 
     @include('frontend.components.header')
@@ -92,6 +146,50 @@
         <!-- Template Javascript -->
         <script src="{{ asset('front/js/main.js') }}"></script>
 
+
+        <script>
+            //custom loading indicatoor
+          function startLoading() {
+          const loader = document.getElementById('loadingIndicator');
+          loader.style.width = '0%'; // Reset
+          loader.style.display = 'block'; // Ensure visible
+          setTimeout(() => {
+              loader.style.width = '100%';
+          }, 50); // Start animation after slight delay
+      }
+
+      function stopLoading() {
+          const loader = document.getElementById('loadingIndicator');
+          setTimeout(() => {
+              loader.style.width = '100%';
+              setTimeout(() => {
+                  loader.style.display = 'none';
+                  loader.style.width = '0%'; // Reset for next use
+              }, 300); // Optional fade-out delay
+          }, 300);
+      }
+
+
+
+      //custom flash message\
+      function showFlashMessage(type, message) {
+          // Create flash message container
+          const flashMessage = document.createElement('div');
+          flashMessage.className = `flash-message ${type} show`;
+          flashMessage.innerText = message;
+
+          // Append to the body
+          document.body.appendChild(flashMessage);
+
+          // Remove after 4 seconds
+          setTimeout(() => {
+              flashMessage.classList.remove('show');
+              setTimeout(() => {
+                  flashMessage.remove();
+              }, 500); // Wait for animation to complete
+          }, 4000);
+      }
+      </script>
 
     </body>
 
