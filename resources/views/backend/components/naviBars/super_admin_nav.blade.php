@@ -10,7 +10,7 @@
         </a>
         <ul id="issues-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
           <li>
-            <a href="">
+            <a href="{{ route('incidences') }}">
               <i class="bi bi-circle"></i><span>All Issues</span>
             </a>
           </li>
@@ -34,13 +34,18 @@
         </a>
         <ul id="consultants-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
           <li>
-            <a href="">
+            <a href="{{ route('consultancy') }}">
               <i class="bi bi-circle"></i><span>All Consultants</span>
             </a>
           </li>
           <li>
             <a href="">
               <i class="bi bi-circle"></i><span>Add Consultant</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ route('consultancy-managers') }}">
+              <i class="bi bi-circle"></i><span>Consultancy Admins</span>
             </a>
           </li>
         </ul>

@@ -19,7 +19,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
-
+        $this->call(CompanyCategorySeeder::class);
+        $this->call(CompanySeeder::class);
         $this->call(IncidenceStatusSeeder::class);
         $this->call(AttachementTypeSeeder::class);
         $this->call([
@@ -33,6 +34,9 @@ class DatabaseSeeder extends Seeder
     }
 }
 
+
+// php artisan db:seed --class=CompanySeeder
+// php artisan db:seed --class=CompanyCategorySeeder
 // php artisan db:seed --class=IncidenceStatusSeeder
 //php artisan db:seed --class=AttachementTypeSeeder
 //php artisan db:seed --class=UserTypeSeeder

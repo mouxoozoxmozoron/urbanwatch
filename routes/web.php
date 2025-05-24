@@ -20,5 +20,17 @@ Route::post('logincheck', [DashboardController::class, 'LoginCheck'])->name('aut
 
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'DashboardHome'])->name('dashboard');
+    Route::get('incidences', [DashboardController::class, 'ReportedIncidences'])->name('incidences');
+    Route::get('consultancy', [DashboardController::class, 'Consultant'])->name('consultancy');
+    Route::get('consultancy-managers', [DashboardController::class, 'Managers'])->name('consultancy-managers');
+    Route::post('addconsultant', [DashboardController::class, 'AddCompany'])->name('addconsultant');
+    Route::post('add-admin', [DashboardController::class, 'addCompanyAdmin'])->name('add.admin');
+
+    Route::post('assign-consultant', [DashboardController::class, 'assignConsultant'])->name('assignconsultanttoincidence');
+    Route::post('updateincidencestatus', [DashboardController::class, 'updateIncidentStatus'])->name('updateincidencestatus');
+    Route::post('re-asignincidenceconsultant', [DashboardController::class, 'reassignOrRemoveConsultant'])->name('reassignincidenceconsultant');
 
     });
+
+
+

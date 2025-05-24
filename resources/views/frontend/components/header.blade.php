@@ -5,7 +5,7 @@
                     <div class="row align-items-center justify-content-center">
                         <div class="col-md-8">
                             <div class="topbar-info d-flex flex-wrap">
-                                <a href="mailto:infrawatch@aftarkeianet.com" class="text-light me-4"><i class="fas fa-envelope text-white me-2"></i>InfraWatch@aftarkeianet.com</a>
+                                <a href="mailto:infrawatch@gmail.com" class="text-light me-4"><i class="fas fa-envelope text-white me-2"></i>InfraWatch@gmail.com</a>
                                 <a href="tel:+255620806839" class="text-light"><i class="fas fa-phone-alt text-white me-2"></i>+255 620806839</a>
                             </div>
                         </div>
