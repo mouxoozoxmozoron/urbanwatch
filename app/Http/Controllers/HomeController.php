@@ -6,9 +6,11 @@ use Illuminate\Support\Facades\Storage;
 
 use App\Models\Incidence;
 use App\Models\InsidenceAttacement;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 
 class HomeController extends Controller
@@ -108,4 +110,59 @@ class HomeController extends Controller
 
         return redirect()->route('home');
     }
+
+
+    public function newuseraccount(){
+        return view('frontend.pages.register');
+    }
+
+
+    public function createAccount(Request $request)
+{
+    $request->validate([
+        'first_name' => 'required|string|max:255',
+        'last_name'  => 'required|string|max:255',
+        'phone'      => 'required|string|max:20',
+        'email'      => 'required|email|unique:users,email',
+        'password'   => 'required|string|min:6',
+    ]);
+
+    User::create([
+        'first_name' => $request->first_name,
+        'last_name'  => $request->last_name,
+        'phone'      => $request->phone,
+        'email'      => $request->email,
+        'password'   => Hash::make($request->password),
+        'user_type_id'  => 3,
+    ]);
+
+    return response()->json(['status' => 'success', 'message' => 'Account created successfully']);
+}
+
+
+public function defaultlogin(){
+    return view('frontend.pages.auth');
+}
+
+
+public function authenticate(Request $request)
+{
+    $credentials = $request->only('email', 'password');
+
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Login successful.',
+            'user_type' => $user->user_type, // return user type to handle redirect logic
+        ]);
+    }
+
+    return response()->json([
+        'status' => 'error',
+        'message' => 'Invalid email or password.'
+    ]);
+}
+
 }

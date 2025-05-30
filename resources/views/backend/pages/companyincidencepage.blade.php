@@ -109,7 +109,10 @@
 
                 {{-- Actions --}}
                 <td>
-                  <a href="#" title="View" class="text-info me-2"><i class="bi bi-eye"></i></a>
+                    <a href="#" title="Change Action" class="text-primary me-2">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </a>
+
 
                   <a href="#" title="Edit" class="text-primary me-2 edit-button" data-bs-toggle="modal" data-bs-target="#editActionsModal">
                     <i class="bi bi-pencil-square"></i>
@@ -120,7 +123,6 @@
                     <i class="bi bi-pencil-square"></i>
                   </a> --}}
 
-                  <a href="#" title="Delete" class="text-danger me-2"><i class="bi bi-trash"></i></a>
                   <a href="{{ route('incidencepreview', $incidence->id) }}" title="View in Map" class="text-success">
                     <i class="bi bi-geo-alt"></i>
                 </a>
@@ -150,14 +152,14 @@
               <i class="bi bi-arrow-repeat me-2"></i>
               <button class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#changeStatusModal">Change Status</button>
             </li>
-            <li class="list-group-item d-flex align-items-center">
+            {{-- <li class="list-group-item d-flex align-items-center">
               <i class="bi bi-person-plus me-2"></i>
               <button class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#assignConsultantModal">Assign Consultant</button>
             </li>
             <li class="list-group-item d-flex align-items-center">
               <i class="bi bi-person-dash me-2"></i>
               <button class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#removeConsultantModal">Remove Consultant</button>
-            </li>
+            </li> --}}
           </ul>
         </div>
       </div>

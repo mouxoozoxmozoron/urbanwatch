@@ -34,10 +34,28 @@
                             <a href="{{ route('about') }}" class="nav-item nav-link">About Us</a>
                             {{-- <a href="services.html" class="nav-item nav-link">Our Services</a> --}}
                             <a href="{{ route('contact') }}" class="nav-item nav-link">Contact Us</a>
-                        </div>
+
+                                @auth
+                                    @if (in_array(Auth::user()->user_type_id, [1, 2]))
+                                        <a href="{{ route('dashboard') }}" class="nav-item nav-link">Dashboard</a>
+                                    @endif
+                                @endauth
+
+                                @auth
+                                <a href="{{ route('logout') }}" class="nav-item nav-link" title="Logout">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                </a>
+                                @endauth
+
+                            </div>
                         <div class="d-flex align-items-center flex-nowrap pt-xl-0" style="margin-left: 15px;">
-                            <a href="{{ route('report-incidence') }}" class="btn-hover-bg btn btn-primary text-white py-2 px-4 me-3">Report Now</a>
+                            @if (Auth::check())
+                                <a href="{{ route('report-incidence') }}" class="btn-hover-bg btn btn-primary text-white py-2 px-4 me-3">Report Now</a>
+                            @else
+                                <a href="{{ route('defaultlogin') }}" class="btn-hover-bg btn btn-primary text-white py-2 px-4 me-3">Report Now</a>
+                            @endif
                         </div>
+
                     </div>
                 </nav>
 

@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Models\CompanyCategory;
 use App\Models\Incidence;
 use App\Models\IncidenceStatus;
+use App\Models\InsidenceAttacement;
 use App\Models\User;
 use Dotenv\Exception\ValidationException;
 use Illuminate\Http\Request;
@@ -62,6 +63,17 @@ class DashboardController extends Controller
         return view('backend.pages.reported_issues', compact('inc_statuses','consultants','incidences'));
      }
 
+     public function CompanyIncidence($id){
+
+        $consultants = Company::where('archive', 0)->get();
+        $inc_statuses = IncidenceStatus::where('archive', 0)->get();
+        $incidences = Incidence::with('attachments', 'consultant', 'statuses')
+        ->where('assigned_company', $id)
+        ->where('archive', 0)->get();
+    //   return response()->json($incidences);
+        return view('backend.pages.companyincidencepage', compact('inc_statuses','consultants','incidences'));
+     }
+
 
      public function Consultant(){
 
@@ -70,6 +82,19 @@ class DashboardController extends Controller
         $cocategories = CompanyCategory::where('archive', 0)->get();
         //return response()->json($companies);
         return view('backend.pages.consultants', compact( 'mangers', 'cocategories', 'companies'));
+     }
+
+     public function MyCompany(){
+
+        $adminID = Auth::user()->id;
+
+        $mangers = User::where('user_type_id', 2)->orWhere('user_type_id', 1)->get();
+        $companies = Company::with('manager', 'incidences', 'bases')
+        ->where('admin_id', $adminID)
+        ->where('archive', 0)->get();
+        $cocategories = CompanyCategory::where('archive', 0)->get();
+        // return response()->json($companies);
+        return view('backend.pages.my_company', compact( 'mangers', 'cocategories', 'companies'));
      }
 
 
@@ -210,4 +235,30 @@ public function reassignOrRemoveConsultant(Request $request)
         return response()->json(['success' => false, 'message' => 'Failed to update consultant.'], 500);
     }
 }
+
+public function IncidencePreview($id)
+{
+    $incidence = Incidence::with(['attachments', 'consultant', 'statuses'])
+        ->where('archive', 0)
+        ->findOrFail($id);
+
+    // Filter attachments by incidence_status
+    $beforeAttachments = InsidenceAttacement::
+    where('incidence_id', $id)
+     ->where('type', 1)
+    ->orwhere('type', 2)
+    ->where('archive', 0)->get();
+
+
+    $afterAttachments = InsidenceAttacement::
+    where('incidence_id', $id)
+    ->where('type', 3)
+    ->where('archive', 0)->get();
+
+
+    // return $beforeAttachments;
+
+    return view('backend.pages.preview_incidence', compact('incidence', 'beforeAttachments', 'afterAttachments'));
+}
+
 }

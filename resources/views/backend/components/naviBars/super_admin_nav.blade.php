@@ -39,6 +39,11 @@
             </a>
           </li>
           <li>
+            <a href="{{ route('my-company') }}">
+              <i class="bi bi-circle"></i><span>My Consultants</span>
+            </a>
+          </li>
+          <li>
             <a href="">
               <i class="bi bi-circle"></i><span>Add Consultant</span>
             </a>

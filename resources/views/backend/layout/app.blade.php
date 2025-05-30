@@ -25,9 +25,8 @@
   <!-- Template Main CSS File -->
   <link href="{{ asset('backend/assets/css/style.css') }}" rel="stylesheet">
 
-
+  <!-- Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-
 
 {{-- leaf let cdns links --}}
 
@@ -37,11 +36,17 @@
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+  <!-- Leaflet Marker Cluster CSS (optional) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css">
+
+  <!-- CSRF Token -->
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
+  @stack('styles')
+
 </head>
-
-
-
 
     <style>
         /* Loading Indicator */
@@ -102,8 +107,9 @@
   <!-- ======= Sidebar ======= -->
     @include('backend.components.aside')
   <!-- End Sidebar-->
+@stack('scripts')
 
-
+<body>
   <main id="main" class="main">
             <div id="loadingIndicator"></div>
             @yield('Content')

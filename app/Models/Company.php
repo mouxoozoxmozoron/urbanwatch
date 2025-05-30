@@ -27,6 +27,6 @@ class Company extends Model
 
     public function incidences()
     {
-        return $this->belongsTo(Incidence::class, 'assigned_company');
+        return $this->hasMany(Incidence::class, 'assigned_company');
     }
 }

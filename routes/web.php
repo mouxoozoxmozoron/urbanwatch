@@ -10,6 +10,14 @@ Route::get('/', [HomeController::class, 'Home'])->name('home');
 Route::get('/about', [HomeController::class, 'About'])->name('about');
 Route::get('/contact', [HomeController::class, 'Contact'])->name('contact');
 Route::get('/report-incidence', [HomeController::class, 'RepoRtIncidence'])->name('report-incidence');
+
+Route::get('/account', [HomeController::class, 'newuseraccount'])->name('account');
+Route::post('/create-account', [HomeController::class, 'createAccount'])->name('create_account');
+
+Route::get('/defaultlogin', [HomeController::class, 'defaultlogin'])->name('defaultlogin');
+Route::post('/defaultauth', [HomeController::class, 'authenticate'])->name('defaultauth');
+
+
 Route::post('/report_incidence', [HomeController::class, 'SaveIncidence'])->name('report_incidence');
 Route::get('/logout', [HomeController::class, 'Logout'])->name('logout');
 Route::get('login', function () {
@@ -21,7 +29,9 @@ Route::post('logincheck', [DashboardController::class, 'LoginCheck'])->name('aut
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'DashboardHome'])->name('dashboard');
     Route::get('incidences', [DashboardController::class, 'ReportedIncidences'])->name('incidences');
+    Route::get('compay-incidences/{id}', [DashboardController::class, 'CompanyIncidence'])->name('compay-incidences');
     Route::get('consultancy', [DashboardController::class, 'Consultant'])->name('consultancy');
+    Route::get('my-company', [DashboardController::class, 'MyCompany'])->name('my-company');
     Route::get('consultancy-managers', [DashboardController::class, 'Managers'])->name('consultancy-managers');
     Route::post('addconsultant', [DashboardController::class, 'AddCompany'])->name('addconsultant');
     Route::post('add-admin', [DashboardController::class, 'addCompanyAdmin'])->name('add.admin');
@@ -29,6 +39,8 @@ Route::middleware('auth')->group(function () {
     Route::post('assign-consultant', [DashboardController::class, 'assignConsultant'])->name('assignconsultanttoincidence');
     Route::post('updateincidencestatus', [DashboardController::class, 'updateIncidentStatus'])->name('updateincidencestatus');
     Route::post('re-asignincidenceconsultant', [DashboardController::class, 'reassignOrRemoveConsultant'])->name('reassignincidenceconsultant');
+
+    Route::get('incidencepreview/{id}', [DashboardController::class, 'IncidencePreview'])->name('incidencepreview');
 
     });
 
