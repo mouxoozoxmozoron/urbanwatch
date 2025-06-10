@@ -103,6 +103,56 @@ class HomeController extends Controller
        }
    }
 
+
+    public function updateImagesForIncidence(Request $request)
+    {
+        $validated = $request->validate([
+            'incidence_id' => 'required|exists:incidences,id',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            // Check if files are present
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $file) {
+                    $path = $file->store('attachements', 'public');
+
+                    InsidenceAttacement::create([
+                        'incidence_id' => $request->incidence_id,
+                        'type' => 2,
+                        'attachement' => "/storage/" . $path,
+                        'status' => 1,
+                        'archive' => 0,
+                    ]);
+                }
+
+                DB::commit();
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Images uploaded successfully.',
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No images were uploaded.',
+                ], 400);
+            }
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to upload images. ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
     public function Logout(){
         Auth::logout();
 
@@ -155,7 +205,7 @@ public function authenticate(Request $request)
         return response()->json([
             'status' => 'success',
             'message' => 'Login successful.',
-            'user_type' => $user->user_type, // return user type to handle redirect logic
+            'user_type' => $user->user_type,
         ]);
     }
 

@@ -13,11 +13,150 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
+
 
 class DashboardController extends Controller
 {
+
+    public function MyProfile(){
+        $wards =[];
+        $user = User::findOrfail(Auth::user()->id);
+        return view('backend.pages.profile', compact('user', 'wards'));
+    }
+
+
+        public function UpdateProfile(Request $request)
+    {
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'phone' => 'required|string|unique:users,phone,' . Auth::user()->id, // Allow unique except for the current user
+            'email' => 'required|string|email|max:255|unique:users,email,' . Auth::user()->id,
+            'profile_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        try {
+            $userID = Auth::user()->id;
+            $user = User::find($userID);
+
+
+            // Handle profile image upload
+            if ($request->hasFile('profile_image')) {
+            if ($user->profile_image) {
+                // Delete old profile image if exists
+                $oldImagePath = str_replace('storage/', '', $user->profile_image);
+                if (\Illuminate\Support\Facades\Storage::disk('public')->exists($oldImagePath)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldImagePath);
+                }
+            }
+
+
+                $imagePath = $request->file('profile_image')->store('UserProfileImages', 'public');
+                $validated['profile_image'] = 'storage/' . $imagePath;
+            } else {
+                $validated['profile_image'] = $user->profile_image;
+            }
+
+            // Update user details
+            $user->update([
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'phone' => $validated['phone'],
+                'email' => $validated['email'],
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Profile updated successfully.',
+                'data' => $user,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while updating the profile.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function UpdatePassword(Request $request)
+    {
+        $request->validate([
+            'currentPassword' => 'required',
+            'newPassword' => 'required',
+        ]);
+
+            $userID = Auth::user()->id;
+            $user = User::find($userID);
+
+        if (!Hash::check($request->currentPassword, $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Current password is incorrect.',
+            ], 400);
+        }
+
+        $user->password = Hash::make($request->newPassword);
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Password updated successfully.',
+        ]);
+    }
+
     public function DashboardHome(){
-        return view('backend.pages.dashboard');
+        $issuescount = 0;
+        $resolvedissues = 0;
+        $unresolvedissues = 0;
+        $subscribers = 0;
+        $consultants = [];
+        $pendingCount = 0;
+        $inProgressCount = 0;;
+        $resolvedCount = 0;
+
+        $year = now()->year;
+
+        $monthlyReports = Incidence::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+            ->whereYear('created_at', $year)
+            ->where('archive', 0)
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->pluck('total', 'month');
+
+        $monthlyCounts = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $monthlyCounts[] = $monthlyReports[$i] ?? 0;
+        }
+
+        $reportedIssues = Incidence::where('archive', 0)->count();
+        $availableConsultants = Company::where('archive', 0)->count();
+
+        $pendingCount = Incidence::where('archive', 0)->where('resolve_status', 1)->count();
+        $inProgressCount = Incidence::where('archive', 0)->where('resolve_status', 2)->count();
+        $resolvedCount = Incidence::where('archive', 0)->where('resolve_status', 3)->count();
+
+        $issuescount = Incidence::where('archive', 0)->count();
+        $resolvedissues = Incidence::where('archive', 0)->where('resolve_status', 3)->count();
+        $unresolvedissues = Incidence::where('archive', 0)->whereIn('resolve_status', [1,2])->count();
+
+        $consultants = Company::with('manager', 'incidences')->where('archive', 0)->get();
+
+        // return response()->json($consultants);
+        return view('backend.pages.dashboard', compact(
+            'issuescount',
+            'resolvedissues',
+            'unresolvedissues',
+            'subscribers',
+            'consultants',
+            'pendingCount',
+            'inProgressCount',
+            'resolvedCount',
+            'reportedIssues',
+            'availableConsultants',
+            'monthlyCounts'
+        ));
+
     }
 
     public function LoginCheck(Request $request){
@@ -55,12 +194,33 @@ class DashboardController extends Controller
      }
 
      public function ReportedIncidences(){
-
         $consultants = Company::where('archive', 0)->get();
         $inc_statuses = IncidenceStatus::where('archive', 0)->get();
         $incidences = Incidence::with('attachments', 'consultant', 'statuses')->where('archive', 0)->get();
     //   return response()->json($incidences);
         return view('backend.pages.reported_issues', compact('inc_statuses','consultants','incidences'));
+     }
+
+
+     public function resolvedIssues(){
+        $consultants = Company::where('archive', 0)->get();
+        $inc_statuses = IncidenceStatus::where('archive', 0)->get();
+        $incidences = Incidence::with('attachments', 'consultant', 'statuses')
+        ->where('resolve_status', 3)
+        ->where('archive', 0)->get();
+    //   return response()->json($incidences);
+        return view('backend.pages.resolved_issues', compact('inc_statuses','consultants','incidences'));
+     }
+
+     public function unresolvedIssues(){
+        $consultants = Company::where('archive', 0)->get();
+        $inc_statuses = IncidenceStatus::where('archive', 0)->get();
+        $incidences = Incidence::with('attachments', 'consultant', 'statuses')
+        ->where('resolve_status', 1)
+        ->orWhere('resolve_status', 2)
+        ->where('archive', 0)->get();
+    //   return response()->json($incidences);
+        return view('backend.pages.un_resolved_issues', compact('inc_statuses','consultants','incidences'));
      }
 
      public function CompanyIncidence($id){
@@ -104,6 +264,12 @@ class DashboardController extends Controller
         return view('backend.pages.company_managers', compact('managers'));
      }
 
+     public function SystemManger(){
+        $managers = User::where('user_type_id', 5)->orWhere('user_type_id', 1)->with('companies')->get();
+        // return response()->json($managers);
+        return view('backend.pages.system_manager', compact('managers'));
+     }
+
 
      public function addCompanyAdmin(Request $request)
 {
@@ -124,6 +290,43 @@ class DashboardController extends Controller
             'phone'         => $request->phone,
             'password'      => Hash::make($request->password),
             'user_type_id'  => 2, // Assuming 1 represents admin
+        ]);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Admin added successfully.',
+            'data'    => [
+                'admin_id' => $admin->id,
+            ],
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Failed to add admin. ' . $e->getMessage(),
+        ], 500);
+    }
+}
+
+
+     public function addSystemManager(Request $request)
+{
+    $validated = $request->validate([
+        'first_name' => 'required|string|max:255',
+        'last_name'  => 'required|string|max:255',
+        'email'      => 'required|email|unique:users,email',
+        'phone'      => 'required|string|max:20',
+        'password'   => 'required|string|min:6',
+    ]);
+
+
+    try {
+        $admin = User::create([
+            'first_name'    => $request->first_name,
+            'last_name'     => $request->last_name,
+            'email'         => $request->email,
+            'phone'         => $request->phone,
+            'password'      => Hash::make($request->password),
+            'user_type_id'  => 1, // Assuming 1 represents admin
         ]);
 
         return response()->json([
@@ -246,13 +449,13 @@ public function IncidencePreview($id)
     $beforeAttachments = InsidenceAttacement::
     where('incidence_id', $id)
      ->where('type', 1)
-    ->orwhere('type', 2)
+    // ->orwhere('type', 2)
     ->where('archive', 0)->get();
 
 
     $afterAttachments = InsidenceAttacement::
     where('incidence_id', $id)
-    ->where('type', 3)
+    ->where('type', 2)
     ->where('archive', 0)->get();
 
 

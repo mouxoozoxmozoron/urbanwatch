@@ -109,10 +109,7 @@
 
                 {{-- Actions --}}
                 <td>
-                <!-- Trigger Link -->
-                <a href="#" class="text-primary me-2 open-update-modal" data-id="{{ $incidence->id }}" title="Change Action">
-                    <i class="bi bi-arrow-repeat"></i>
-                </a>
+                  <a href="#" title="View" class="text-info me-2"><i class="bi bi-eye"></i></a>
 
                   <a href="#" title="Edit" class="text-primary me-2 edit-button" data-bs-toggle="modal" data-bs-target="#editActionsModal">
                     <i class="bi bi-pencil-square"></i>
@@ -123,6 +120,7 @@
                     <i class="bi bi-pencil-square"></i>
                   </a> --}}
 
+                  <a href="#" title="Delete" class="text-danger me-2"><i class="bi bi-trash"></i></a>
                   <a href="{{ route('incidencepreview', $incidence->id) }}" title="View in Map" class="text-success">
                     <i class="bi bi-geo-alt"></i>
                 </a>
@@ -152,14 +150,14 @@
               <i class="bi bi-arrow-repeat me-2"></i>
               <button class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#changeStatusModal">Change Status</button>
             </li>
-            {{-- <li class="list-group-item d-flex align-items-center">
+            <li class="list-group-item d-flex align-items-center">
               <i class="bi bi-person-plus me-2"></i>
               <button class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#assignConsultantModal">Assign Consultant</button>
             </li>
             <li class="list-group-item d-flex align-items-center">
               <i class="bi bi-person-dash me-2"></i>
               <button class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#removeConsultantModal">Remove Consultant</button>
-            </li> --}}
+            </li>
           </ul>
         </div>
       </div>
@@ -240,39 +238,6 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-danger" id="confirmRemoveConsultant">Confirm</button>
         </div>
-      </div>
-    </div>
-  </div>
-
-
-
-  <!-- Modal -->
-  <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-
-        <div class="modal-header">
-          <h5 class="modal-title" id="updateModalLabel">Update Incidence Images</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body">
-          <form id="updateIncidenceForm" enctype="multipart/form-data">
-            @csrf
-            <input type="hidden" name="incidence_id" id="incidence_id">
-
-            <div class="mb-3">
-              <label for="images" class="form-label">Select Images</label>
-              <input type="file" name="images[]" id="images" class="form-control" multiple accept="image/*">
-              <div id="imagePreview" class="mt-3 d-flex flex-wrap gap-2"></div>
-            </div>
-          </form>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" id="submitImages" class="btn btn-primary">Update Images</button>
-        </div>
-
       </div>
     </div>
   </div>
@@ -431,95 +396,4 @@
         });
         });
 
-
-
-        $(document).ready(function() {
-        let selectedFiles = [];
-
-        $('.open-update-modal').on('click', function(e) {
-            e.preventDefault();
-            const id = $(this).data('id');
-            $('#incidence_id').val(id);
-            selectedFiles = [];
-            $('#imagePreview').html('');
-            $('#images').val('');
-            $('#updateModal').modal('show');
-        });
-
-        // Preview images and store in selectedFiles
-        $('#images').on('change', function(e) {
-            $('#imagePreview').html('');
-            selectedFiles = Array.from(e.target.files);
-
-            selectedFiles.forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const imgHtml = `
-                <div class="position-relative" style="width:100px;">
-                    <img src="${event.target.result}" class="img-thumbnail" style="height:80px; object-fit:cover;">
-                    <button type="button" class="btn-close btn-sm position-absolute top-0 end-0 remove-preview" data-index="${index}" title="Remove"></button>
-                </div>
-                `;
-                $('#imagePreview').append(imgHtml);
-            };
-            reader.readAsDataURL(file);
-            });
-        });
-
-        // Remove image from selectedFiles array
-        $('#imagePreview').on('click', '.remove-preview', function() {
-            const index = $(this).data('index');
-            selectedFiles.splice(index, 1);
-            $('#images')[0].value = '';
-            $('#imagePreview').html('');
-            selectedFiles.forEach((file, idx) => {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const imgHtml = `
-                <div class="position-relative" style="width:100px;">
-                    <img src="${event.target.result}" class="img-thumbnail" style="height:80px; object-fit:cover;">
-                    <button type="button" class="btn-close btn-sm position-absolute top-0 end-0 remove-preview" data-index="${idx}" title="Remove"></button>
-                </div>
-                `;
-                $('#imagePreview').append(imgHtml);
-            };
-            reader.readAsDataURL(file);
-            });
-        });
-
-        // Handle form submit via AJAX
-        $('#submitImages').on('click', function() {
-            const formData = new FormData();
-            const incidenceId = $('#incidence_id').val();
-            formData.append('incidence_id', incidenceId);
-
-            selectedFiles.forEach(file => {
-            formData.append('images[]', file);
-            });
-
-            $.ajax({
-            url: '{{ route("updateincidenceimages") }}',
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            headers: {
-                'X-CSRF-TOKEN': $('input[name="_token"]').val()
-            },
-            success: function(response) {
-                if (response.status === 'success') {
-                showFlashMessage('success', response.message || 'Incidence updated succesfully');
-                $('#updateModal').modal('hide');
-                } else {
-                    showFlashMessage('error', response.message || 'An error occured, please try again');
-                }
-            },
-            error: function(xhr) {
-                const msg = xhr.responseJSON?.message || 'An error occurred.';
-                showFlashMessage('error', msg || 'Error updating incidence');
-
-            }
-            });
-        });
-        });
   </script>
