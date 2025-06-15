@@ -7,6 +7,7 @@ use App\Models\CompanyCategory;
 use App\Models\Incidence;
 use App\Models\IncidenceStatus;
 use App\Models\InsidenceAttacement;
+use App\Models\Subscriber;
 use App\Models\User;
 use Dotenv\Exception\ValidationException;
 use Illuminate\Http\Request;
@@ -141,6 +142,8 @@ class DashboardController extends Controller
         $unresolvedissues = Incidence::where('archive', 0)->whereIn('resolve_status', [1,2])->count();
 
         $consultants = Company::with('manager', 'incidences')->where('archive', 0)->get();
+
+        $subscribers = Subscriber::where('archive', 0)->count();
 
         // return response()->json($consultants);
         return view('backend.pages.dashboard', compact(

@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'Home'])->name('home');
 Route::get('/about', [HomeController::class, 'About'])->name('about');
 Route::get('/contact', [HomeController::class, 'Contact'])->name('contact');
-Route::get('/report-incidence', [HomeController::class, 'RepoRtIncidence'])->name('report-incidence');
 
 Route::get('/account', [HomeController::class, 'newuseraccount'])->name('account');
 Route::post('/create-account', [HomeController::class, 'createAccount'])->name('create_account');
+Route::post('/subscribe', [HomeController::class, 'CreateSubscription'])->name('subscribe');
 
 Route::get('/defaultlogin', [HomeController::class, 'defaultlogin'])->name('defaultlogin');
 Route::post('/defaultauth', [HomeController::class, 'authenticate'])->name('defaultauth');
@@ -27,6 +27,8 @@ Route::post('logincheck', [DashboardController::class, 'LoginCheck'])->name('aut
 
 
 Route::middleware('auth')->group(function () {
+    Route::get('/report-incidence', [HomeController::class, 'RepoRtIncidence'])->name('report-incidence');
+
     Route::get('myprofile', [DashboardController::class, 'MyProfile'])->name('myprofile');
     Route::post('updateprofile', [DashboardController::class, 'UpdateProfile'])->name('updateprofile');
     Route::post('updatepassword', [DashboardController::class, 'UpdatePassword'])->name('updatepassword');

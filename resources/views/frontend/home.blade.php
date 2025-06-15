@@ -312,13 +312,15 @@
                     Bridging the gap between citizens and local authorities by reporting, tracking, and resolving urban infrastructure issues efficiently.
                 </p>
             </div>
+
+
             <div class="row g-4">
                 <div class="col-md-6 col-lg-6 col-xl-3">
                     <div class="counter-item text-center border p-5">
                         <i class="fas fa-exclamation-triangle fa-4x text-white"></i>
                         <h3 class="text-white my-4">Issues Reported</h3>
                         <div class="counter-counting">
-                            <span class="text-primary fs-2 fw-bold" data-toggle="counter-up">4250</span>
+                            <span class="text-primary fs-2 fw-bold" data-toggle="counter-up">{{ $incidencecount }}</span>
                             <span class="h1 fw-bold text-primary">+</span>
                         </div>
                     </div>
@@ -328,7 +330,7 @@
                         <i class="fas fa-check-circle fa-4x text-white"></i>
                         <h3 class="text-white my-4">Cases Resolved</h3>
                         <div class="counter-counting text-center border-white w-100" style="border-style: dotted; font-size: 30px;">
-                            <span class="text-primary fs-2 fw-bold" data-toggle="counter-up">3120</span>
+                            <span class="text-primary fs-2 fw-bold" data-toggle="counter-up">{{ $resolvedissuecount }}</span>
                             <span class="h1 fw-bold text-primary">+</span>
                         </div>
                     </div>
@@ -338,7 +340,7 @@
                         <i class="fas fa-users fa-4x text-white"></i>
                         <h3 class="text-white my-4">Active Users</h3>
                         <div class="counter-counting text-center border-white w-100" style="border-style: dotted; font-size: 30px;">
-                            <span class="text-primary fs-2 fw-bold" data-toggle="counter-up">980</span>
+                            <span class="text-primary fs-2 fw-bold" data-toggle="counter-up">{{ $usercount }}</span>
                             <span class="h1 fw-bold text-primary">+</span>
                         </div>
                     </div>
@@ -346,9 +348,9 @@
                 <div class="col-md-6 col-lg-6 col-xl-3">
                     <div class="counter-item text-center border p-5">
                         <i class="fas fa-city fa-4x text-white"></i>
-                        <h3 class="text-white my-4">Cities Engaged</h3>
+                        <h3 class="text-white my-4">Subscribers</h3>
                         <div class="counter-counting text-center border-white w-100" style="border-style: dotted; font-size: 30px;">
-                            <span class="text-primary fs-2 fw-bold" data-toggle="counter-up">15</span>
+                            <span class="text-primary fs-2 fw-bold" data-toggle="counter-up">{{ $subscribercount }}</span>
                             <span class="h1 fw-bold text-primary">+</span>
                         </div>
                     </div>

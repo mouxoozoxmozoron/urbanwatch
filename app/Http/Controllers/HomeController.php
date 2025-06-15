@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Storage;
 
 use App\Models\Incidence;
 use App\Models\InsidenceAttacement;
+use App\Models\Subscriber;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,14 @@ class HomeController extends Controller
 {
 
    public function Home(){
-    return view('frontend.home');
+    $incidencecount = Incidence::where('archive', 0)->count();
+    $usercount = User::count();
+    $subscribercount = Subscriber::where('archive', 0)->count();
+    $resolvedissuecount = Incidence::where('archive', 0) ->where('resolve_status', 3)->count();
+
+    return view('frontend.home',
+    compact('incidencecount','usercount' , 'subscribercount', 'resolvedissuecount')
+    );
    }
 
    public function About(){
@@ -187,6 +195,26 @@ class HomeController extends Controller
     ]);
 
     return response()->json(['status' => 'success', 'message' => 'Account created successfully']);
+}
+
+
+    public function CreateSubscription(Request $request)
+{
+    $request->validate([
+        'email' => 'required|string',
+    ]);
+
+    $exist = Subscriber::where('email', $request->email)->first();
+        if ($exist) {
+            return response()->json(['status' => 'error', 'message' => 'This Email has a subscription!']);
+        }
+
+
+        Subscriber::create([
+        'email' => $request->email,
+    ]);
+
+    return response()->json(['status' => 'success', 'message' => 'Subscription created successfully']);
 }
 
 

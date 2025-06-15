@@ -45,11 +45,70 @@
                     <h4 class="mb-4 text-white">Join Us</h4>
                     <div class="row g-2">
                         <div class="position-relative mx-auto">
-                            <input class="form-control border-0 bg-secondary w-100 py-3 ps-4 pe-5" type="text" placeholder="Enter your email">
-                            <button type="button" class="btn-hover-bg btn btn-primary position-absolute top-0 end-0 py-2 mt-2 me-2">Subscribe</button>
+                            <form id="subscriptionform">
+                                @csrf
+                            <input name="email" class="form-control border-0 bg-secondary w-100 py-3 ps-4 pe-5" type="email" required placeholder="Enter your email">
+                            <button type="submit" class="btn-hover-bg btn btn-primary position-absolute top-0 end-0 py-2 mt-2 me-2">Join Us</button>
+                        </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+
+
+
+@push('scripts')
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        // Form submission with AJAX
+        $('#subscriptionform').on('submit', function (e) {
+            e.preventDefault();
+            const form = this;
+            const submitButton = $(form).find('button[type="submit"]');
+
+            if (!form.checkValidity()) {
+                $(form).addClass('was-validated');
+                return;
+            }
+
+            submitButton.prop('disabled', true);
+            startLoading();
+
+            const formData = new FormData(form);
+
+            $.ajax({
+                url: "{{ route('subscribe') }}",
+                method: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    stopLoading();
+                    submitButton.prop('disabled', false);
+
+                    if (data.status === 'success') {
+                        showFlashMessage('success', data.message || 'information saved successfully!');
+                        form.reset();
+                    } else {
+                        showFlashMessage('error', data.message || 'Failed to create subscription.');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    stopLoading();
+                    submitButton.prop('disabled', false);
+                    showFlashMessage('error', 'An error occurred. Please try again!');
+                    console.error(error);
+                }
+            });
+        });
+    });
+</script>
