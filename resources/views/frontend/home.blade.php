@@ -14,7 +14,8 @@
         <div class="carousel-inner" role="listbox">
             <!-- Slide 1 -->
             <div class="carousel-item active">
-                <img src="{{ asset('front/img/02_hero.jpg') }}" class="img-fluid" alt="Report Infrastructure Issues">
+                <img src="{{ asset('front/img/imgone.jpg') }}" class="img-fluid" alt="Report Infrastructure Issues">
+                {{-- <img src="{{ asset('front/img/02_hero.jpg') }}" class="img-fluid" alt="Report Infrastructure Issues"> --}}
                 <div class="carousel-caption">
                     <div class="p-3" style="max-width: 900px;">
                         <h4 class="text-white text-uppercase fw-bold mb-4" style="letter-spacing: 3px;">CITIZEN POWER</h4>
@@ -28,7 +29,7 @@
             </div>
             <!-- Slide 2 -->
             <div class="carousel-item">
-                <img src="{{ asset('front/img/03_hero.jpg') }}" class="img-fluid" alt="View Reports on Map">
+                <img src="{{ asset('front/img/imgtwo.jpg') }}" class="img-fluid" alt="View Reports on Map">
                 <div class="carousel-caption">
                     <div class="p-3" style="max-width: 900px;">
                         <h4 class="text-white text-uppercase fw-bold mb-4" style="letter-spacing: 3px;">REAL-TIME VISIBILITY</h4>
@@ -42,7 +43,7 @@
             </div>
             <!-- Slide 3 -->
             <div class="carousel-item">
-                <img src="{{ asset('front/img/01_hero.jpg') }}" class="img-fluid" alt="Engage With Your Community">
+                <img src="{{ asset('front/img/imgthree.jpg') }}" class="img-fluid" alt="Engage With Your Community">
                 <div class="carousel-caption">
                     <div class="p-3" style="max-width: 900px;">
                         <h4 class="text-white text-uppercase fw-bold mb-4" style="letter-spacing: 3px;">CITIZEN ENGAGEMENT</h4>
