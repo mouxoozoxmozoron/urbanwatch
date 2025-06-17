@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('update-incidence-images', [HomeController::class, 'updateImagesForIncidence'])->name('updateincidenceimages');
 
+    Route::delete('/delete-incidence/{id}', [DashboardController::class, 'deleteincidence'])->name('deleteincidence');
 
 
     Route::get('compay-incidences/{id}', [DashboardController::class, 'CompanyIncidence'])->name('compay-incidences');

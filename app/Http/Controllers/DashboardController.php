@@ -467,4 +467,23 @@ public function IncidencePreview($id)
     return view('backend.pages.preview_incidence', compact('incidence', 'beforeAttachments', 'afterAttachments'));
 }
 
+
+    public function deleteincidence($id)
+    {
+        $incidence = Incidence::find($id);
+
+        if (!$incidence) {
+            return response()->json(['success' => false, 'message' => 'Incidence not found.']);
+        }
+
+        try {
+            $incidence->delete();
+
+            return response()->json(['success' => true, 'message' => 'Incidence deleted successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Deletion failed.']);
+        }
+    }
+
+
 }

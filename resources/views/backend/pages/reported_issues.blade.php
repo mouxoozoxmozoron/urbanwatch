@@ -120,8 +120,10 @@
                     <i class="bi bi-pencil-square"></i>
                   </a> --}}
 
-                  <a href="#" title="Delete" class="text-danger me-2"><i class="bi bi-trash"></i></a>
-                  <a href="{{ route('incidencepreview', $incidence->id) }}" title="View in Map" class="text-success">
+                  <a href="#" title="Delete" class="text-danger me-2 delete-incidence-btn" data-id="{{ $incidence->id }}">
+                    <i class="bi bi-trash"></i>
+                </a>
+                   <a href="{{ route('incidencepreview', $incidence->id) }}" title="View in Map" class="text-success">
                     <i class="bi bi-geo-alt"></i>
                 </a>
                  </td>
@@ -395,5 +397,36 @@
             }
         });
         });
+
+
+
+
+        $(document).on('click', '.delete-incidence-btn', function (e) {
+    e.preventDefault();
+
+    if (!confirm('Are you sure you want to delete this incidence?')) return;
+
+    var incidentId = $(this).data('id');
+
+    $.ajax({
+        url: '/delete-incidence/' + incidentId,
+        type: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}',
+            _method: 'DELETE'
+        },
+        success: function (response) {
+            if (response.success) {
+                alert(response.message);
+                window.location.reload(); // Or remove row from DOM
+            } else {
+                alert('Delete failed: ' + response.message);
+            }
+        },
+        error: function (xhr) {
+            alert('Error: ' + xhr.responseText);
+        }
+    });
+});
 
   </script>
