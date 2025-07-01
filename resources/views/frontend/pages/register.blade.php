@@ -89,7 +89,7 @@
                         showFlashMessage('success', data.message || 'Account created successfully! Redirecting to login...');
                         form.reset();
                         setTimeout(() => {
-                            window.location.href = "{{ route('login') }}";
+                            window.location.href = "{{ route('defaultlogin') }}";
                         }, 3000);
                     } else {
                         showFlashMessage('error', data.message || 'Registration failed. Please try again.');
