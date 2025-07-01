@@ -358,7 +358,7 @@
                 </div>
                 <div class="col-12">
                     <div class="d-flex align-items-center justify-content-center">
-                        <a class="btn-hover-bg btn btn-primary text-white py-2 px-4" href="#">Join With Us</a>
+                        <a class="btn-hover-bg btn btn-primary text-white py-2 px-4" href="{{ route('public-incidences') }}">View More</a>
                     </div>
                 </div>
             </div>

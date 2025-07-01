@@ -87,9 +87,13 @@
 
                 {{-- Actions --}}
                 <td>
-                  <a href="#" title="View" class="text-info me-2"><i class="bi bi-eye"></i></a>
-                  <a href="#" title="Edit" class="text-primary me-2"><i class="bi bi-pencil-square"></i></a>
-                  <a href="#" title="Delete" class="text-danger me-2"><i class="bi bi-trash"></i></a>
+                  <a href="#" title="Edit" class="text-primary me-2 edit-company-btn" data-id="{{ $company->id }}">
+                    <i class="bi bi-pencil-square"></i>
+                </a>
+
+                  <a href="#" title="Delete" class="text-danger me-2 delete-company-btn" data-id="{{ $company->id }}">
+                    <i class="bi bi-trash"></i>
+                </a>
                 </td>
               </tr>
               @endforeach
@@ -151,9 +155,19 @@
 </div>
 
 
+@include('backend.pages.publicUser.update_company_model')
 
 
 @endsection
+
+<!-- jQuery UI CSS -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- jQuery UI JS -->
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+
 
 <script>
     function startLoading() {
@@ -223,6 +237,116 @@
             form.reset();
             form.classList.remove('was-validated');
             const modal = bootstrap.Modal.getInstance(document.getElementById('addCompanyModal'));
+            modal.hide();
+            location.reload(); // Reload to see the new company
+          } else {
+            showFlashMessage('error', data.message || 'Failed to add company!');
+          }
+        })
+        .catch(err => {
+          stopLoading();
+          submitButton.disabled = false;
+          showFlashMessage('error', 'An error occurred. Please try again.');
+          console.error(err);
+        });
+      });
+    });
+
+
+
+
+    $(document).on('click', '.delete-company-btn', function (e) {
+    e.preventDefault();
+
+    if (!confirm('Are you sure you want to delete this company?')) return;
+
+    var incidentId = $(this).data('id');
+
+    $.ajax({
+        url: '/delete-company/' + incidentId,
+        type: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}',
+            _method: 'DELETE'
+        },
+        success: function (response) {
+            if (response.success) {
+                alert(response.message);
+                window.location.reload();
+            } else {
+                alert('Delete failed: ' + response.message);
+            }
+        },
+        error: function (xhr) {
+            alert('Error: ' + xhr.responseText);
+        }
+    });
+});
+
+
+
+
+$(document).on('click', '.edit-company-btn', function (e) {
+    e.preventDefault();
+
+    const companyId = $(this).data('id');
+
+    $('#updatecompanyform')[0].reset();
+
+    $.ajax({
+        url: '/company/' + companyId,
+        type: 'GET',
+        success: function (data) {
+            $('input[name="editCompanyId"]').val(data.editCompanyId);
+            $('input[name="company_name"]').val(data.company_name);
+            $('input[name="description"]').val(data.description);
+            $('select[name="category_id"]').val(data.category_id);
+            $('select[name="admin"]').val(data.admin_id);
+
+            $('#updatecompanyform').attr('data-id', companyId);
+
+         $('#updatecompanymodel').modal('show');
+        },
+        error: function () {
+            alert('Failed to fetch company details.');
+        }
+    });
+});
+
+
+document.addEventListener('DOMContentLoaded', function () {
+      const form = document.getElementById('updatecompanyform');
+      const submitButton = form.querySelector('button[type="submit"]');
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        if (!form.checkValidity()) {
+          form.classList.add('was-validated');
+          return;
+        }
+
+        submitButton.disabled = true;
+        startLoading();
+
+        const formData = new FormData(form);
+
+        fetch("{{ route('editcompany') }}", {
+          method: "POST",
+          headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+          },
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          stopLoading();
+          submitButton.disabled = false;
+
+          if (data.status === 'success') {
+            showFlashMessage('success', data.message || 'Company updated!');
+            form.reset();
+            form.classList.remove('was-validated');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('updatecompanymodel'));
             modal.hide();
             location.reload(); // Reload to see the new company
           } else {

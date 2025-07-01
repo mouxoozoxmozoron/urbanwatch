@@ -109,7 +109,7 @@
 
                 {{-- Actions --}}
                 <td>
-                  <a href="#" title="View" class="text-info me-2"><i class="bi bi-eye"></i></a>
+                  {{-- <a href="#" title="View" class="text-info me-2"><i class="bi bi-eye"></i></a> --}}
 
                   <a href="#" title="Edit" class="text-primary me-2 edit-button" data-bs-toggle="modal" data-bs-target="#editActionsModal">
                     <i class="bi bi-pencil-square"></i>
@@ -401,7 +401,7 @@
 
 
 
-        $(document).on('click', '.delete-incidence-btn', function (e) {
+$(document).on('click', '.delete-incidence-btn', function (e) {
     e.preventDefault();
 
     if (!confirm('Are you sure you want to delete this incidence?')) return;

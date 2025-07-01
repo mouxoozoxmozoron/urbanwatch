@@ -103,7 +103,7 @@
 
       <!-- ========== Issue Categories Section ========== -->
 
-      <li class="nav-item">
+      {{-- <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#categories-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-tags"></i><span>Issue Categories</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
@@ -119,10 +119,9 @@
             </a>
           </li>
         </ul>
-      </li><!-- End Issue Categories -->
+      </li> --}}
 
-      <!-- ========== Analytics Section ========== -->
-      <li class="nav-item">
+      {{-- <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#analytics-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-bar-chart-line"></i><span>Analytics</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
@@ -138,7 +137,7 @@
             </a>
           </li>
         </ul>
-      </li><!-- End Analytics -->
+      </li> --}}
  @endif
 
 
@@ -154,6 +153,20 @@
           <li>
             <a href="{{ route('my-company') }}">
               <i class="bi bi-circle"></i><span>My company</span>
+            </a>
+          </li>
+        </ul>
+      </li><!-- End Consultants -->
+
+
+       <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#publicissues-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-person-badge"></i><span>Issues</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="publicissues-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="{{ route('public-incidences') }}">
+              <i class="bi bi-circle"></i><span>All Issues</span>
             </a>
           </li>
         </ul>

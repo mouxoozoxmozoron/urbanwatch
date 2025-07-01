@@ -21,7 +21,8 @@ Route::post('/defaultauth', [HomeController::class, 'authenticate'])->name('defa
 Route::post('/report_incidence', [HomeController::class, 'SaveIncidence'])->name('report_incidence');
 Route::get('/logout', [HomeController::class, 'Logout'])->name('logout');
 Route::get('login', function () {
-    return view('backend.default');
+    // return view('backend.default');
+    return view('frontend.pages.auth');
 })->name('login');
 Route::post('logincheck', [DashboardController::class, 'LoginCheck'])->name('authentication');
 
@@ -35,12 +36,26 @@ Route::middleware('auth')->group(function () {
 
     Route::get('dashboard', [DashboardController::class, 'DashboardHome'])->name('dashboard');
     Route::get('incidences', [DashboardController::class, 'ReportedIncidences'])->name('incidences');
+    Route::get('public-incidences', [DashboardController::class, 'AllReportedIssuesForPublic'])->name('public-incidences');
     Route::get('resolved-issues', [DashboardController::class, 'resolvedIssues'])->name('resolved-issues');
     Route::get('un-resolved-issues', [DashboardController::class, 'unresolvedIssues'])->name('un-resolved-issues');
 
     Route::post('update-incidence-images', [HomeController::class, 'updateImagesForIncidence'])->name('updateincidenceimages');
 
     Route::delete('/delete-incidence/{id}', [DashboardController::class, 'deleteincidence'])->name('deleteincidence');
+    Route::delete('/delete-company/{id}', [DashboardController::class, 'deletecompany'])->name('delete-company');
+
+    Route::get('/company/{id}', [DashboardController::class, 'show']);
+
+    Route::POST('/editcompany', [DashboardController::class, 'updateCompany'])->name('editcompany');
+
+
+
+    Route::get('/admin/edit/{id}', [DashboardController::class, 'edit']);
+    Route::post('/admin/update', [DashboardController::class, 'update']);
+
+    Route::delete('/admin/delete/{id}', [DashboardController::class, 'destroy']);
+
 
 
     Route::get('compay-incidences/{id}', [DashboardController::class, 'CompanyIncidence'])->name('compay-incidences');

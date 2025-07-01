@@ -109,23 +109,8 @@
 
                 {{-- Actions --}}
                 <td>
-                  {{-- <a href="#" title="View" class="text-info me-2"><i class="bi bi-eye"></i></a> --}}
 
-                  <a href="#" title="Edit" class="text-primary me-2 edit-button" data-bs-toggle="modal" data-bs-target="#editActionsModal">
-                    <i class="bi bi-pencil-square"></i>
-                  </a>
-                  <input type="hidden" class="incident-id" value="{{ $incidence->id }}">
-
-                  {{-- <a href="#" title="Edit" class="text-primary me-2" data-bs-toggle="modal" data-bs-target="#editActionsModal">
-                    <i class="bi bi-pencil-square"></i>
-                  </a> --}}
-
-
-                  <a href="#" title="Delete" class="text-danger me-2 delete-incidence-btn" data-id="{{ $incidence->id }}">
-                    <i class="bi bi-trash"></i>
-                </a>
-
-                  <a href="{{ route('incidencepreview', $incidence->id) }}" title="View in Map" class="text-success">
+                   <a href="{{ route('incidencepreview', $incidence->id) }}" title="View in Map" class="text-success">
                     <i class="bi bi-geo-alt"></i>
                 </a>
                  </td>
@@ -401,7 +386,9 @@
         });
 
 
-        $(document).on('click', '.delete-incidence-btn', function (e) {
+
+
+$(document).on('click', '.delete-incidence-btn', function (e) {
     e.preventDefault();
 
     if (!confirm('Are you sure you want to delete this incidence?')) return;

@@ -205,6 +205,15 @@ class DashboardController extends Controller
      }
 
 
+     public function AllReportedIssuesForPublic(){
+        $consultants = Company::where('archive', 0)->get();
+        $inc_statuses = IncidenceStatus::where('archive', 0)->get();
+        $incidences = Incidence::with('attachments', 'consultant', 'statuses')->where('archive', 0)->get();
+    //   return response()->json($incidences);
+        return view('backend.pages.publicUser.all_reported_issues', compact('inc_statuses','consultants','incidences'));
+     }
+
+
      public function resolvedIssues(){
         $consultants = Company::where('archive', 0)->get();
         $inc_statuses = IncidenceStatus::where('archive', 0)->get();
@@ -268,7 +277,7 @@ class DashboardController extends Controller
      }
 
      public function SystemManger(){
-        $managers = User::where('user_type_id', 5)->orWhere('user_type_id', 1)->with('companies')->get();
+        $managers = User::where('user_type_id', 5)->with('companies')->get();
         // return response()->json($managers);
         return view('backend.pages.system_manager', compact('managers'));
      }
@@ -346,6 +355,10 @@ class DashboardController extends Controller
         ], 500);
     }
 }
+
+
+
+
      public function AddCompany(Request $request){
         $validated = $request->validate([
             'company_name' => 'required|string|max:255',
@@ -384,6 +397,46 @@ class DashboardController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to register company. ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+    public function updateCompany(Request $request)
+    {
+        $validated = $request->validate([
+            'editCompanyId' => 'required|exists:companies,id',
+            'company_name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category_id' => 'nullable|exists:company_categories,id',
+            'admin' => 'required|exists:users,id',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $company = Company::findOrFail($validated['editCompanyId']);
+
+            $company->update([
+                'name' => $validated['company_name'],
+                'description' => $validated['description'],
+                'category' => $validated['category_id'],
+                'admin_id' => $validated['admin'],
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Company updated successfully.',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update company. ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -485,5 +538,95 @@ public function IncidencePreview($id)
         }
     }
 
+
+    public function deletecompany($id)
+    {
+        $company = Company::find($id);
+
+        if (!$company) {
+            return response()->json(['success' => false, 'message' => 'company not found.']);
+        }
+
+        try {
+            $company->delete();
+
+            return response()->json(['success' => true, 'message' => 'company deleted successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Deletion failed.']);
+        }
+    }
+
+
+
+    public function show($id)
+{
+    $company = Company::findOrFail($id);
+
+    return response()->json([
+        'company_name' => $company->name,
+        'description' => $company->description,
+        'category_id' => $company->category,
+        'admin_id' => $company->admin_id,
+        'editCompanyId' => $company->id,
+    ]);
+}
+
+
+public function edit($id)
+{
+    $admin = User::findOrFail($id);
+    return response()->json($admin);
+}
+
+public function update(Request $request)
+{
+    $request->validate([
+        'admin_id'   => 'required|exists:users,id',
+        'first_name' => 'required|string',
+        'last_name'  => 'required|string',
+        'email'      => 'required|email|unique:users,email,' . $request->admin_id,
+        'phone'      => 'required',
+        'password'   => 'nullable|min:6|confirmed',
+    ]);
+
+    $admin = User::findOrFail($request->admin_id);
+
+    $admin->first_name = $request->first_name;
+    $admin->last_name  = $request->last_name;
+    $admin->email      = $request->email;
+    $admin->phone      = $request->phone;
+
+    if (!empty($request->password)) {
+        $admin->password = Hash::make($request->password);
+    }
+
+    $admin->save();
+
+    return response()->json([
+        'type' => 'success',
+        'message' => 'Admin updated successfully!'
+    ]);
+
+}
+
+
+public function destroy($id)
+{
+    $admin = User::findOrFail($id);
+
+    try {
+        $admin->delete();
+
+        return response()->json([
+            'type' => 'success',
+            'message' => 'Admin deleted successfully.'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'type' => 'error',
+            'message' => 'Failed to delete admin. Error: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
 }

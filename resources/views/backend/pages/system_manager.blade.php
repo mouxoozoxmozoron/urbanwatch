@@ -42,9 +42,14 @@
                 <td>{{ $manager['email'] }}</td>
                 <td>{{ $manager['phone'] }}</td>
                 <td>
-                  <a href="#" title="View" class="text-info me-2"><i class="bi bi-eye"></i></a>
-                  <a href="#" title="Edit" class="text-primary me-2"><i class="bi bi-pencil-square"></i></a>
-                  <a href="#" title="Delete" class="text-danger me-2"><i class="bi bi-trash"></i></a>
+                  {{-- <a href="#" title="Edit" class="text-primary me-2"><i class="bi bi-pencil-square"></i></a> --}}
+                  <a href="#" title="Edit" class="text-primary me-2 edit-editsytemadminmodel-btn" data-id="{{ $manager->id }}">
+                    <i class="bi bi-pencil-square"></i>
+                </a>
+
+                <a href="#" title="Delete" class="text-danger me-2 delete-admin-btn" data-id="{{ $manager->id }}">
+                    <i class="bi bi-trash"></i>
+                </a>
                 </td>
               </tr>
               @endforeach
@@ -95,9 +100,21 @@
     </div>
   </div>
 </div>
+
+
+@include('backend.pages.publicUser.update_systemadmin_model')
 @endsection
 
 
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- jQuery UI JS -->
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+
+
+@include('backend.pages.publicUser.update_admin_script')
 <script>
     function startLoading() {
       const loader = document.getElementById('loadingIndicator');
@@ -181,4 +198,3 @@
       });
     });
   </script>
-
