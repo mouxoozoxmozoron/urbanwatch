@@ -277,7 +277,7 @@ class DashboardController extends Controller
      }
 
      public function SystemManger(){
-        $managers = User::where('user_type_id', 5)->with('companies')->get();
+        $managers = User::where('user_type_id', 5)->orWhere('user_type_id', 1)->with('companies')->get();
         // return response()->json($managers);
         return view('backend.pages.system_manager', compact('managers'));
      }
