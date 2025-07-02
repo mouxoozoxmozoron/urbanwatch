@@ -180,89 +180,97 @@
       </div>
     </section>
 
+<script>
+    // Wait for DOM to load
+document.addEventListener('DOMContentLoaded', function() {
+    // ===== PROFILE FORM HANDLER =====
+    const profileForm = document.getElementById('editProfileForm');
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleProfileUpdate(this);
+        });
 
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('editProfileForm');
-    const submitButton = form.querySelector('button[type="submit"]');
-    const profileImageInput = document.getElementById('profileImage');
-    const imagePreview = document.getElementById('imagePreview');
-    const previewImg = document.getElementById('previewImg');
-    const removeImageBtn = document.getElementById('removeImage');
-    const loadingIndicator = document.getElementById('loadingIndicator'); // Optional loading indicator
-
-    // Preview selected image
-    profileImageInput.addEventListener('change', function () {
-        const file = this.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                previewImg.src = e.target.result;
-                imagePreview.classList.remove('d-none');
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // Remove selected image
-    removeImageBtn.addEventListener('click', function () {
-        profileImageInput.value = '';
-        imagePreview.classList.add('d-none');
-        previewImg.src = '{{ asset('assets/img/default-profile.jpg') }}'; // Reset to default profile image
-    });
-
-    // Handle form submission
-    form.addEventListener('submit', function (event) {
-        event.preventDefault(); // Prevent default form submission
-
-        if (!form.checkValidity()) {
-            form.classList.add('was-validated');
-            return;
+        // Image preview
+        const profileImageInput = document.getElementById('profileImage');
+        if (profileImageInput) {
+            profileImageInput.addEventListener('change', handleImagePreview);
         }
 
-        // Disable button and optionally show loading indicator
-        submitButton.disabled = true;
+        // Remove image
+        const removeImageBtn = document.getElementById('removeImage');
+        if (removeImageBtn) {
+            removeImageBtn.addEventListener('click', handleRemoveImage);
+        }
+    }
 
-        const formData = new FormData(form);
-
-        fetch("{{ route('updateprofile') }}", {
-            method: "POST",
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            },
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                submitButton.disabled = false;
-
-                // Show flash message
-                if (data.status === 'success') {
-                    showFlashMessage('success', data.message || 'Profile updated successfully!');
-                    window.location.reload();
-                } else {
-                    showFlashMessage('error', data.message || 'Failed to update profile.');
-                }
-            })
-            .catch(error => {
-                submitButton.disabled = false;
-                showFlashMessage('error', 'An error occurred. Please try again!');
-                console.error(error);
-            });
-    });
+    // ===== PASSWORD FORM HANDLER =====
+    const passwordForm = document.getElementById('changePasswordForm');
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handlePasswordChange(this);
+        });
+    }
 });
 
+// Profile form handler
+function handleProfileUpdate(form) {
+    const submitButton = form.querySelector('button[type="submit"]');
+    const formData = new FormData(form);
 
+    // Validation
+    const requiredFields = form.querySelectorAll('[required]');
+    let isValid = true;
 
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            field.classList.add('is-invalid');
+        } else {
+            field.classList.remove('is-invalid');
+        }
+    });
 
-document.getElementById('changePasswordForm').addEventListener('submit', function (e) {
-    e.preventDefault(); // Prevent the form from submitting
+    if (!isValid) {
+        showFlashMessage('error', 'Please fill all required fields');
+        return;
+    }
 
+    submitButton.disabled = true;
+
+    fetch("{{ route('updateprofile') }}", {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': getCsrfToken()
+        },
+        body: formData
+    })
+    .then(handleResponse)
+    .then(data => {
+        submitButton.disabled = false;
+        if (data.status === 'success') {
+            showFlashMessage('success', data.message || 'Profile updated successfully!');
+            window.location.reload();
+        } else {
+            showFlashMessage('error', data.message || 'Failed to update profile');
+        }
+    })
+    .catch(error => {
+        submitButton.disabled = false;
+        showFlashMessage('error', 'An error occurred. Please try again!');
+        console.error('Profile Update Error:', error);
+    });
+}
+
+// Password form handler
+function handlePasswordChange(form) {
     const currentPassword = document.getElementById('currentPassword').value.trim();
     const newPassword = document.getElementById('newPassword').value.trim();
     const renewPassword = document.getElementById('renewPassword').value.trim();
+    const submitButton = form.querySelector('button[type="submit"]');
 
+    // Validation
     if (!currentPassword || !newPassword || !renewPassword) {
         showFlashMessage('error', 'All fields are required.');
         return;
@@ -273,32 +281,71 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
         return;
     }
 
-    // Submit the form data via AJAX
+    submitButton.disabled = true;
+
     fetch('updatepassword', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'X-CSRF-TOKEN': getCsrfToken()
         },
         body: JSON.stringify({
             currentPassword: currentPassword,
             newPassword: newPassword,
         }),
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                showFlashMessage('success', data.message);
-                window.location.reload();
-            } else {
-                showFlashMessage('error', data.message);
-            }
-        })
-        .catch(error => {
-            showFlashMessage('error', 'An error occurred while processing the request.');
-        });
-});
+    .then(handleResponse)
+    .then(data => {
+        submitButton.disabled = false;
+        if (data.status === 'success') {
+            showFlashMessage('success', data.message);
+            window.location.reload();
+        } else {
+            showFlashMessage('error', data.message);
+        }
+    })
+    .catch(error => {
+        submitButton.disabled = false;
+        showFlashMessage('error', 'An error occurred while processing the request.');
+        console.error('Password Change Error:', error);
+    });
+}
 
+// ===== HELPER FUNCTIONS =====
+function handleImagePreview(e) {
+    const file = e.target.files[0];
+    const previewImg = document.getElementById('previewImg');
+    const imagePreview = document.getElementById('imagePreview');
 
-    </script>
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            imagePreview.classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function handleRemoveImage() {
+    const profileImageInput = document.getElementById('profileImage');
+    const previewImg = document.getElementById('previewImg');
+    const imagePreview = document.getElementById('imagePreview');
+
+    profileImageInput.value = '';
+    imagePreview.classList.add('d-none');
+    previewImg.src = '{{ asset('assets/img/default-profile.jpg') }}';
+}
+
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]').content;
+}
+
+function handleResponse(response) {
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+}
+</script>
 @endsection
